@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 350px;
+            background: #000000;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .display {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .display-value {
+            color: #FFFFFF;
+            font-size: 64px;
+            font-weight: 300;
+            line-height: 1;
+            transition: font-size 0.15s ease;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .display-value.small {
+            font-size: 48px;
+        }
+
+        .display-value.smaller {
+            font-size: 36px;
+        }
+
+        .display-value.smallest {
+            font-size: 28px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .btn {
+            height: 70px;
+            border: none;
+            border-radius: 50%;
+            font-size: 28px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn.number {
+            background: #A5A5A5;
+            color: #000000;
+        }
+
+        .btn.number:hover {
+            background: #B8B8B8;
+        }
+
+        .btn.number:active {
+            background: #959595;
+        }
+
+        .btn.operator {
+            background: #FF9500;
+            color: #FFFFFF;
+        }
+
+        .btn.operator:hover {
+            background: #FFAA33;
+        }
+
+        .btn.operator:active {
+            background: #CC7700;
+        }
+
+        .btn.function {
+            background: #D1D1D1;
+            color: #000000;
+        }
+
+        .btn.function:hover {
+            background: #E0E0E0;
+        }
+
+        .btn.function:active {
+            background: #B0B0B0;
+        }
+
+        .btn.zero {
+            grid-column: span 2;
+            border-radius: 35px;
+            text-align: left;
+            padding-left: 30px;
+        }
+
+        .btn.equal {
+            background: #FF9500;
+            color: #FFFFFF;
+        }
+
+        .btn.equal:hover {
+            background: #FFAA33;
+        }
+
+        .btn.equal:active {
+            background: #CC7700;
+        }
+
+        @media (max-width: 380px) {
+            .calculator {
+                padding: 15px;
+                border-radius: 25px;
+            }
+
+            .display {
+                height: 100px;
+            }
+
+            .display-value {
+                font-size: 48px;
+            }
+
+            .display-value.small {
+                font-size: 38px;
+            }
+
+            .display-value.smaller {
+                font-size: 30px;
+            }
+
+            .display-value.smallest {
+                font-size: 24px;
+            }
+
+            .btn {
+                height: 60px;
+                font-size: 24px;
+            }
+
+            .button-grid {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .btn {
+                height: 55px;
+                font-size: 22px;
+            }
+
+            .button-grid {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <span class="display-value" id="display">0</span>
+        </div>
+        
+        <div class="button-grid">
+            <button class="btn function" data-action="clear">C</button>
+            <button class="btn function" data-action="toggle-sign">±</button>
+            <button class="btn function" data-action="percent">%</button>
+            <button class="btn operator" data-action="operator" data-value="÷">÷</button>
+            
+            <button class="btn number" data-action="number" data-value="7">7</button>
+            <button class="btn number" data-action="number" data-value="8">8</button>
+            <button class="btn number" data-action="number" data-value="9">9</button>
+            <button class="btn operator" data-action="operator" data-value="×">×</button>
+            
+            <button class="btn number" data-action="number" data-value="4">4</button>
+            <button class="btn number" data-action="number" data-value="5">5</button>
+            <button class="btn number" data-action="number" data-value="6">6</button>
+            <button class="btn operator" data-action="operator" data-value="-">−</button>
+            
+            <button class="btn number" data-action="number" data-value="1">1</button>
+            <button class="btn number" data-action="number" data-value="2">2</button>
+            <button class="btn number" data-action="number" data-value="3">3</button>
+            <button class="btn operator" data-action="operator" data-value="+">+</button>
+            
+            <button class="btn number zero" data-action="number" data-value="0">0</button>
+            <button class="btn number" data-action="decimal">.</button>
+            <button class="btn equal" data-action="equals">=</button>
+        </div>
+    </div>
+
+    <script>
+        class Calculator {
+            constructor() {
+                this.displayElement = document.getElementById('display');
+                this.currentValue = '0';
+                this.previousValue = null;
+                this.operator = null;
+                this.waitingForOperand = false;
+                this.error = false;
+                
+                this.init();
+            }
+
+            init() {
+                document.querySelectorAll('.btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.handleButtonClick(e));
+                    btn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.handleButtonClick(e);
+                    }, { passive: false });
+                });
+
+                document.addEventListener('keydown', (e) => this.handleKeydown(e));
+            }
+
+            handleButtonClick(e) {
+                const button = e.target.closest('.btn');
+                if (!button) return;
+
+                const action = button.dataset.action;
+                const value = button.dataset.value;
+
+                switch (action) {
+                    case 'number':
+                        this.inputNumber(value);
+                        break;
+                    case 'operator':
+                        this.inputOperator(value);
+                        break;
+                    case 'decimal':
+                        this.inputDecimal();
+                        break;
+                    case 'equals':
+                        this.calculate();
+                        break;
+                    case 'clear':
+                        this.clear();
+                        break;
+                    case 'toggle-sign':
+                        this.toggleSign();
+                        break;
+                    case 'percent':
+                        this.percent();
+                        break;
+                }
+            }
+
+            handleKeydown(e) {
+                const key = e.key;
+                
+                if (key >= '0' && key <= '9') {
+                    this.inputNumber(key);
+                } else if (key === '.') {
+                    this.inputDecimal();
+                } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                    const operatorMap = {
+                        '*': '×',
+                        '/': '÷'
+                    };
+                    this.inputOperator(operatorMap[key] || key);
+                } else if (key === 'Enter' || key === '=') {
+                    e.preventDefault();
+                    this.calculate();
+                } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                    this.clear();
+                } else if (key === 'Backspace') {
+                    this.backspace();
+                }
+            }
+
+            inputNumber(num) {
+                if (this.error) {
+                    this.clear();
+                }
+
+                if (this.waitingForOperand) {
+                    this.currentValue = num;
+                    this.waitingForOperand = false;
+                } else {
+                    if (this.currentValue === '0' && num !== '0') {
+                        this.currentValue = num;
+                    } else if (this.currentValue !== '0' && this.currentValue.length < 12) {
+                        this.currentValue += num;
+                    } else if (num === '0' && this.currentValue !== '0' && this.currentValue.length < 12) {
+                        this.currentValue += num;
+                    }
+                }
+                this.updateDisplay();
+            }
+
+            inputDecimal() {
+                if (this.error) {
+                    this.currentValue = '0.';
+                    this.error = false;
+                    this.updateDisplay();
+                    return;
+                }
+
+                if (this.waitingForOperand) {
+                    this.currentValue = '0.';
+                    this.waitingForOperand = false;
+                    this.updateDisplay();
+                    return;
+                }
+
+                if (!this.currentValue.includes('.')) {
+                    this.currentValue += '.';
+                    this.updateDisplay();
+                }
+            }
+
+            inputOperator(nextOperator) {
+                if (this.error) return;
+
+                const inputValue = parseFloat(this.currentValue);
+
+                if (this.previousValue !== null && !this.waitingForOperand) {
+                    const result = this.performCalculation();
+                    if (result === 'Error') {
+                        this.displayError();
+                        return;
+                    }
+                    this.currentValue = String(result);
+                    this.previousValue = result;
+                } else {
+                    this.previousValue = inputValue;
+                }
+
+                this.operator = nextOperator;
+                this.waitingForOperand = true;
+                this.updateDisplay();
+            }
+
+            calculate() {
+                if (this.operator === null || this.waitingForOperand) {
+                    return;
+                }
+
+                const inputValue = parseFloat(this.currentValue);
+                const result = this.performCalculation();
+
+                if (result === 'Error') {
+                    this.displayError();
+                    return;
+                }
+
+                this.currentValue = this.formatResult(result);
+                this.previousValue = null;
+                this.operator = null;
+                this.waitingForOperand = true;
+                this.updateDisplay();
+            }
+
+            performCalculation() {
+                const prev = this.previousValue;
+                const current = parseFloat(this.currentValue);
+
+                if (this.operator === '÷' && current === 0) {
+                    return 'Error';
+                }
+
+                let result;
+                switch (this.operator) {
+                    case '+':
+                        result = prev + current;
+                        break;
+                    case '−':
+                        result = prev - current;
+                        break;
+                    case '×':
+                        result = prev * current;
+                        break;
+                    case '÷':
+                        result = prev / current;
+                        break;
+                    default:
+                        return current;
+                }
+
+                return result;
+            }
+
+            formatResult(num) {
+                if (!isFinite(num)) return 'Error';
+                
+                const str = num.toString();
+                if (str.length <= 12) return str;
+                
+                const intPart = Math.abs(num).toString().split('.')[0];
+                const maxDecimals = 12 - intPart.length - 1;
+                
+                if (maxDecimals <= 0) {
+                    return num.toExponential(6);
+                }
+                
+                const result = num.toFixed(Math.max(0, maxDecimals));
+                return parseFloat(result).toString();
+            }
+
+            displayError() {
+                this.currentValue = 'Error';
+                this.previousValue = null;
+                this.operator = null;
+                this.waitingForOperand = false;
+                this.error = true;
+                this.updateDisplay();
+            }
+
+            clear() {
+                this.currentValue = '0';
+                this.previousValue = null;
+                this.operator = null;
+                this.waitingForOperand = false;
+                this.error = false;
+                this.updateDisplay();
+            }
+
+            backspace() {
+                if (this.error || this.waitingForOperand) return;
+                
+                if (this.currentValue.length > 1) {
+                    this.currentValue = this.currentValue.slice(0, -1);
+                } else {
+                    this.currentValue = '0';
+                }
+                this.updateDisplay();
+            }
+
+            toggleSign() {
+                if (this.currentValue === '0' || this.error) return;
+                
+                if (this.currentValue.startsWith('-')) {
+                    this.currentValue = this.currentValue.slice(1);
+                } else {
+                    this.currentValue = '-' + this.currentValue;
+                }
+                this.updateDisplay();
+            }
+
+            percent() {
+                if (this.currentValue === '0' || this.error) return;
+                
+                const value = parseFloat(this.currentValue) / 100;
+                this.currentValue = this.formatResult(value);
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                let displayValue = this.currentValue;
+                
+                if (displayValue === 'Error') {
+                    this.displayElement.textContent = 'Error';
+                } else {
+                    if (displayValue.length > 9) {
+                        this.displayElement.className = 'display-value smallest';
+                    } else if (displayValue.length > 7) {
+                        this.displayElement.className = 'display-value smaller';
+                    } else if (displayValue.length > 5) {
+                        this.displayElement.className = 'display-value small';
+                    } else {
+                        this.displayElement.className = 'display-value';
+                    }
+                    this.displayElement.textContent = displayValue;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new Calculator();
+        });
+    </script>
+</body>
+</html>
